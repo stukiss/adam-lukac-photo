@@ -98,7 +98,13 @@ watch(open, (v) => document.documentElement.classList.toggle('menu-open', v))
 .burger[aria-expanded='true'] span:nth-child(2) { opacity: 0; }
 .burger[aria-expanded='true'] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-.mobile-menu { position: fixed; inset: var(--header-h) 0 0; background: var(--color-bg-page); overflow-y: auto; }
+/* backdrop-filter na .header z neho robí containing block aj pre fixed potomkov, preto absolute. */
+.mobile-menu {
+  position: absolute; top: 100%; left: 0; right: 0;
+  height: calc(100vh - var(--header-h));
+  height: calc(100dvh - var(--header-h));
+  background: var(--color-bg-page); overflow-y: auto;
+}
 .mobile-menu__nav { display: flex; flex-direction: column; padding-block: var(--space-xl); }
 .mobile-menu__link {
   font-size: var(--text-h2); text-decoration: none; color: var(--color-text-brand);
