@@ -1,0 +1,72 @@
+/* Dizajnové tokeny – zhodné s premennými vo Figme (kolekcie Primitives, Color, Spacing, Radius, Typography). */
+:root {
+  /* Primitíva */
+  --brand-green-900: #123b16;
+  --brand-green-700: #2c5e31;
+  --brand-green-500: #5e7a60;
+  --brand-cream-50: #faf7ec;
+  --brand-cream-100: #f1ecda;
+  --brand-sand-200: #e6e0cc;
+  --brand-brass-500: #a8895a;
+  --brand-brass-700: #7a6238;
+  --brand-ink: #1e2a1f;
+
+  /* Sémantické farby */
+  --color-bg-page: var(--brand-cream-50);
+  --color-bg-subtle: var(--brand-cream-100);
+  --color-bg-photo-placeholder: var(--brand-sand-200);
+  --color-bg-brand: var(--brand-green-900);
+  --color-text-primary: var(--brand-ink);
+  --color-text-secondary: var(--brand-green-500);
+  --color-text-brand: var(--brand-green-900);
+  --color-text-on-brand: var(--brand-cream-50);
+  --color-text-accent: var(--brand-brass-700);
+  --color-action-primary: var(--brand-green-900);
+  --color-action-primary-hover: var(--brand-green-700);
+  --color-border-default: var(--brand-sand-200);
+  --color-border-strong: var(--brand-green-900);
+  --color-accent-brass: var(--brand-brass-500);
+
+  /* Medzery */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+
+  /* Zaoblenia */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-full: 999px;
+
+  /* Typografia (smer B – Jost) */
+  --font-heading: 'Jost', system-ui, sans-serif;
+  --font-body: 'Jost', system-ui, sans-serif;
+  --font-label: 'Jost', system-ui, sans-serif;
+
+  --text-display: clamp(2.75rem, 1.6rem + 4vw, 4.5rem);   /* 44 → 72 px */
+  --text-h1: clamp(2.25rem, 1.8rem + 1.6vw, 3rem);         /* 36 → 48 px */
+  --text-h2: clamp(1.75rem, 1.6rem + 0.5vw, 2rem);         /* 28 → 32 px */
+  --text-h3: 1.375rem;                                      /* 22 px */
+  --text-body-lg: 1.125rem;                                 /* 18 px */
+  --text-body: 1rem;                                        /* 16 px */
+  --text-caption: 0.875rem;                                 /* 14 px */
+  --text-label: 0.75rem;                                    /* 12 px */
+
+  /* Layout */
+  --container: 1248px;
+  --gutter: var(--space-lg);
+  --section-gap: var(--space-2xl);
+  --header-h: 64px;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --gutter: var(--space-3xl);
+    --section-gap: var(--space-3xl);
+    --header-h: 88px;
+  }
+}
