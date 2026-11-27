@@ -1,0 +1,19 @@
+# /etc/systemd/system/adamlukacphoto.service
+# Aktivácia: sudo systemctl daemon-reload && sudo systemctl enable --now adamlukacphoto
+[Unit]
+Description=Web Adam Lukac Photo
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+# Uprav cestu k projektu na serveri
+WorkingDirectory=/var/www/adam-lukac-photo
+ExecStart=/usr/bin/node --env-file=.env server/index.mjs
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

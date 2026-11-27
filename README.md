@@ -7,8 +7,9 @@ Web reportážneho fotografa. **Vue 3 + Vite**, bez ťažkých knižníc. Dizajn
 ```bash
 npm install
 npm run dev      # vývoj na http://localhost:5173
+npm run dev:api  # server pre formulár (v druhom termináli), e-maily ukladá do server/outbox/
 npm run build    # produkčný build do dist/
-npm run preview  # náhľad buildu
+npm start        # produkčný server: dist/ + /api/contact na http://127.0.0.1:3000
 ```
 
 ## Kde čo upraviť
@@ -32,19 +33,29 @@ Hľadaj `TODO` a `doplniť` – to sú miesta, ktoré treba ešte vyplniť (ceny
 
 Skopíruj `src/i18n/locales/sk.js` napr. na `cs.js` a prelož hodnoty (aj `routes` – časti adries). Router automaticky vytvorí adresy `/cs/...`. Lokalizované polia v dátach majú tvar `{ sk: '…', cs: '…' }`. Prepínač jazykov do hlavičky doplníme, keď bude druhý jazyk.
 
-## Publikovanie na GitHub Pages
+## Server a kontaktný formulár
 
-1. Vytvor repozitár na GitHube a nahraj doň tento projekt (vetva `main`).
-2. V repozitári: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Každý push do `main` web automaticky zostaví a zverejní (`.github/workflows/deploy.yml`). Adresa bude `https://<používateľ>.github.io/<repozitár>/`.
+Web beží na vlastnom Node.js serveri (`server/index.mjs`, bez frameworku). Server servíruje hotový build z `dist/` (aj podstránky typu `/sk/ponuka`) a prijíma dopyty z formulára na `POST /api/contact`.
 
-**Vlastná doména neskôr:** pridaj súbor `public/CNAME` s doménou, v `deploy.yml` nastav `BASE_PATH: /` a doménu nastav v Settings → Pages.
+- **Kontrola na serveri:** povinné polia, dĺžky polí, skryté pole proti robotom a najviac 5 dopytov za 10 minút z jednej IP.
+- **E-mail:** chodí na `MAIL_TO` cez SMTP schránku. Predmet má tvar `Nový dopyt – Svadba · 14. 6. 2027 · Jana Nováková`, telo obsahuje polia v pevnom poradí a e-mail má textovú aj HTML verziu. „Odpovedať“ odpíše priamo klientovi.
+- **Úprava tvaru e-mailu:** `server/contact.mjs`.
+- **Konfigurácia:** `.env` podľa `.env.example`. Súbor `.env` sa necommituje.
+- **Vývoj bez SMTP:** e-maily sa neposielajú, ukladajú sa ako `.eml` do `server/outbox/`.
 
-## Kontaktný formulár
+## Nasadenie na VPS
 
-GitHub Pages nevie spracovať formulár na serveri, preto:
+Potrebuješ Node.js 22+, nginx a doménu nasmerovanú na server.
 
-- **S externou službou (odporúčané):** založ formulár napr. na Formspree, Basin alebo Getform a jeho URL ulož v GitHube ako premennú repozitára `VITE_FORM_ENDPOINT` (Settings → Secrets and variables → Actions → Variables). Správy budú chodiť na e-mail.
-- **Bez služby:** stačí vyplniť `email` v `src/data/site.js` – formulár potom otvorí e-mailového klienta s predvyplnenou správou.
+```bash
+git clone https://github.com/stukiss/adam-lukac-photo.git && cd adam-lukac-photo
+npm ci && npm run build
+cp .env.example .env   # doplň SMTP, NODE_ENV=production, TRUST_PROXY=true
+npm start              # na skúšku; natrvalo cez systemd (deploy/adamlukacphoto.service)
+```
 
-Formulár má skryté pole proti spamovým robotom.
+nginx preposiela požiadavky na `127.0.0.1:3000` (pozri `deploy/nginx.conf`). HTTPS zabezpečí certbot (`certbot --nginx`).
+
+**Aktualizácia webu:** `git pull && npm ci && npm run build && sudo systemctl restart adamlukacphoto`
+
+**Dočasný náhľad na GitHub Pages:** pri pushi do `main` sa web stále zverejní aj na GitHub Pages (`.github/workflows/deploy.yml`). Pages nemajú server, preto tam formulár neodošle správu a ukáže chybu. Po presune na VPS workflow zrušíme.
