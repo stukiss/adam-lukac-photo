@@ -1,8 +1,8 @@
-// Kontaktné údaje a nastavenia webu. TODO: doplniť skutočné hodnoty.
+// Kontaktné údaje a nastavenia webu.
 export const site = {
-  email: '', // napr. 'adam@adamlukacphoto.sk' – kým je prázdne, zobrazí sa „doplniť“
-  phone: '', // voliteľné
-  instagram: { handle: '', url: '' }, // napr. { handle: '@adamlukacphoto', url: 'https://instagram.com/adamlukacphoto' }
+  email: 'adamlukacphoto@gmail.com',
+  phone: '+421 917 713 179', // voliteľné
+  instagram: { handle: '@adam__lukac', url: 'https://www.instagram.com/adam__lukac/' },
 
   // Fotka na stránke „O mne“ (súbor v public/photos bez prípony veľkosti), napr. 'adam'.
   // Kým je null, zobrazí sa decentný zástupný blok s monogramom.
