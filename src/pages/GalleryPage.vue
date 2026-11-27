@@ -1,11 +1,12 @@
 <script setup>
-import { computed, watchEffect } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from '../i18n'
 import { useLocalePath } from '../composables/useLocalePath'
 import { findGallery, galleries } from '../data/galleries'
 import AppPhoto from '../components/AppPhoto.vue'
 import PhotoMasonry from '../components/PhotoMasonry.vue'
+import PhotoLightbox from '../components/PhotoLightbox.vue'
 import CtaBlock from '../components/CtaBlock.vue'
 import BaseButton from '../components/BaseButton.vue'
 
@@ -17,7 +18,12 @@ const g = computed(() => findGallery(route.params.slug))
 const idx = computed(() => galleries.indexOf(g.value))
 const prev = computed(() => (idx.value > 0 ? galleries[idx.value - 1] : null))
 const next = computed(() => (idx.value >= 0 && idx.value < galleries.length - 1 ? galleries[idx.value + 1] : null))
-const [cover, ...rest] = g.value ? [g.value.photos[0], ...g.value.photos.slice(1)] : []
+const cover = computed(() => g.value?.photos[0])
+const rest = computed(() => g.value?.photos.slice(1) ?? [])
+
+// Lightbox cez všetky fotky galérie (index 0 = úvodná fotka).
+const current = ref(null)
+watch(() => route.params.slug, () => (current.value = null))
 
 watchEffect(() => {
   document.title = `${g.value ? loc(g.value.title) : t('meta.titles.gallery')} · ${t('meta.siteName')}`
@@ -44,9 +50,12 @@ watchEffect(() => {
     </div>
 
     <section class="container section gallery">
-      <AppPhoto :name="cover" eager sizes="(min-width: 1440px) 1248px, 100vw" class="gallery__cover" />
-      <PhotoMasonry :photos="rest" :columns="3" />
+      <button v-if="cover" type="button" class="gallery__cover" @click="current = 0">
+        <AppPhoto :name="cover" eager sizes="(min-width: 1440px) 1248px, 100vw" />
+      </button>
+      <PhotoMasonry :photos="rest" :columns="3" external-lightbox @open="current = $event + 1" />
     </section>
+    <PhotoLightbox v-if="current !== null" v-model:index="current" :photos="g.photos" @close="current = null" />
 
     <nav class="container pager" aria-label="Galérie">
       <RouterLink v-if="prev" :to="lp('gallery', { slug: prev.slug })" class="pager__item">
@@ -74,7 +83,12 @@ watchEffect(() => {
 .back { font-weight: 500; font-size: var(--text-label); letter-spacing: .14em; text-transform: uppercase; text-decoration: none; color: var(--color-text-brand); }
 .head__row { display: flex; flex-direction: column; gap: var(--space-md); }
 .head__title, .head__text { display: grid; gap: 12px; }
-.gallery__cover { margin-bottom: var(--space-sm); }
+.gallery__cover {
+  display: block; width: 100%; padding: 0; margin: 0 0 var(--space-sm);
+  border: 0; background: none; cursor: zoom-in;
+}
+.gallery__cover :deep(img) { transition: opacity .2s; }
+.gallery__cover:hover :deep(img) { opacity: .92; }
 .pager { display: flex; justify-content: space-between; gap: var(--space-lg); border-top: 1px solid var(--color-border-default); padding-top: var(--space-lg); }
 .pager__item { display: grid; gap: 6px; text-decoration: none; color: var(--color-text-brand); }
 .pager__item--next { text-align: right; }

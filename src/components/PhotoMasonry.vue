@@ -4,20 +4,28 @@ import { ref } from 'vue'
 import AppPhoto from './AppPhoto.vue'
 import PhotoLightbox from './PhotoLightbox.vue'
 
-defineProps({
+const props = defineProps({
   photos: { type: Array, required: true },
   columns: { type: Number, default: 3 },
+  // Ak je zapnuté, lightbox si rieši rodič; mriežka len emituje `open` s indexom.
+  externalLightbox: { type: Boolean, default: false },
 })
+const emit = defineEmits(['open'])
 const current = ref(null)
+
+function open(i) {
+  emit('open', i)
+  if (!props.externalLightbox) current.value = i
+}
 </script>
 
 <template>
   <div class="masonry" :style="{ '--cols': columns }">
-    <button v-for="(p, i) in photos" :key="p" type="button" class="masonry__item" @click="current = i">
+    <button v-for="(p, i) in photos" :key="p" type="button" class="masonry__item" @click="open(i)">
       <AppPhoto :name="p" :sizes="`(min-width: 900px) ${Math.round(100 / columns)}vw, 50vw`" />
     </button>
   </div>
-  <PhotoLightbox v-if="current !== null" v-model:index="current" :photos="photos" @close="current = null" />
+  <PhotoLightbox v-if="!externalLightbox && current !== null" v-model:index="current" :photos="photos" @close="current = null" />
 </template>
 
 <style scoped>
