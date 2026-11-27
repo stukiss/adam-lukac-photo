@@ -16,9 +16,8 @@ const form = reactive({
   website: '', // pasca na spam roboty – skryté pole, človek ho nevyplní
 })
 const errors = reactive({})
-const status = ref('idle') // idle | sending | sent | mailto | error
+const status = ref('idle') // idle | sending | sent | error
 
-const fields = ['name', 'email', 'phone', 'date', 'place']
 const required = ['name', 'email', 'message']
 
 function validate() {
@@ -33,28 +32,26 @@ const typeLabel = () => (form.type === 'other' ? t('contact.typeOther') : c.valu
 async function submit() {
   if (form.website || !validate()) return
   status.value = 'sending'
+  // Pasca (website) ide aj na server – roboti, ktorí obídu JS, sa odfiltrujú tam.
   const payload = { ...form, type: typeLabel() }
-  delete payload.website
 
   try {
-    if (site.formEndpoint) {
-      const res = await fetch(site.formEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) throw new Error(res.statusText)
-      status.value = 'sent'
-    } else if (site.email) {
-      const subject = t('contact.mailSubject', { type: payload.type || '—', date: payload.date || '—' })
-      const body = fields.concat('type', 'message')
-        .map((k) => `${t(`contact.fields.${k}.label`)}: ${payload[k] || '—'}`)
-        .join('\n')
-      window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-      status.value = 'mailto'
-    } else {
-      throw new Error('Formulár ešte nie je prepojený (doplň e-mail alebo VITE_FORM_ENDPOINT).')
+    const res = await fetch(site.formEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json().catch(() => ({}))
+    // Chyby polí, ktoré formulár vie ukázať (meno, e-mail, správa); ostatné spadnú do všeobecnej chyby.
+    if (res.status === 400 && data.fields && Object.keys(data.fields).every((k) => required.includes(k))) {
+      for (const [k, code] of Object.entries(data.fields)) {
+        errors[k] = code === 'required' ? t('contact.required') : code === 'too_long' ? t('contact.tooLong') : k === 'email' ? t('contact.invalidEmail') : t('contact.invalid')
+      }
+      status.value = 'idle'
+      return
     }
+    if (!res.ok || !data.ok) throw new Error(data.error || res.statusText)
+    status.value = 'sent'
   } catch (e) {
     console.error(e)
     status.value = 'error'
@@ -91,8 +88,8 @@ const info = [
     <form class="form" novalidate @submit.prevent="submit">
       <h2 class="h3">{{ t('contact.formTitle') }}</h2>
 
-      <div v-if="status === 'sent' || status === 'mailto'" class="notice" role="status">
-        {{ status === 'sent' ? t('contact.success') : t('contact.mailtoInfo') }}
+      <div v-if="status === 'sent'" class="notice" role="status">
+        {{ t('contact.success') }}
       </div>
 
       <template v-else>

@@ -8,7 +8,7 @@ export const site = {
   // Kým je null, zobrazí sa decentný zástupný blok s monogramom.
   aboutPhoto: null,
 
-  // Odosielanie formulára: URL služby typu Formspree / Basin / Getform (POST JSON).
-  // Nastavuje sa cez premennú VITE_FORM_ENDPOINT. Bez nej formulár otvorí e-mailového klienta.
-  formEndpoint: import.meta.env.VITE_FORM_ENDPOINT || '',
+  // Odosielanie formulára: POST JSON na vlastný server (server/index.mjs → /api/contact).
+  // VITE_FORM_ENDPOINT môže adresu prepísať (napr. API na inej doméne).
+  formEndpoint: import.meta.env.VITE_FORM_ENDPOINT || `${import.meta.env.BASE_URL}api/contact`,
 }

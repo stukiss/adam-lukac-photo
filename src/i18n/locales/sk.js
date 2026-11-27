@@ -206,11 +206,11 @@ export default {
     submit: 'Odoslať dopyt',
     sending: 'Odosielam…',
     success: 'Ďakujem, správa odišla. Ozvem sa do 48 hodín.',
-    mailtoInfo: 'Otvoril sa váš e-mailový program s predvyplnenou správou – stačí ju odoslať.',
     error: 'Správu sa nepodarilo odoslať. Skúste to prosím znova alebo mi napíšte priamo na e-mail.',
     required: 'Vyplňte prosím toto pole.',
     invalidEmail: 'Skontrolujte prosím e-mailovú adresu.',
-    mailSubject: 'Dopyt z webu: {type} – {date}',
+    tooLong: 'Text je príliš dlhý, skráťte ho prosím.',
+    invalid: 'Skontrolujte prosím túto hodnotu.',
   },
 
   notFound: {
